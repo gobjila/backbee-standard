@@ -13,6 +13,6 @@
                 {% endif %}
                 <time class="time" itemprop="dateCreated">{{ this.getObject().getCreated()|date("Y-m-d") }}</time>
             </p>
-        <p {{ this.bbcontent(abstract, {'class': 'chapo'})|raw }} itemprop="description">{{ abstract.value|raw }}</p>
+        <p {{ this.bbcontent(abstract, {'class': 'chapo'})|raw }} itemprop="description">{{ (abstract.value|striptags)|truncate(150, true)|raw }}</p>
     </div>
 </article>
