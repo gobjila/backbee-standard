@@ -84,7 +84,16 @@ class HomeArticleContainerListener
         } else {
             // Get latest Article page
             $layout = self::$em->getRepository('BackBee\Site\Layout')->findOneBy(array('_label' => 'Article'));
-            $page = self::$em->getRepository('BackBee\NestedNode\Page')->findOneBy(array('_layout' => $layout), array('_modified' => 'DESC'));
+
+            $page = self::$em->getRepository('BackBee\NestedNode\Page')
+                    ->createQueryBuilder('p')
+                    ->andIsOnline()
+                    ->andWhere('p._layout = :layout')
+                    ->setParameter('layout', $layout)
+                    ->orderBy('p._modified', 'DESC')
+                    ->setMaxResults(1)
+                    ->getQuery()
+                    ->getOneOrNullResult();
 
             $parentNode[] = $page;
         }
