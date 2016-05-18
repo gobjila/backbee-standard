@@ -80,8 +80,8 @@ class LatestArticleListener
         // Recalculate limit according with exclusions
         $content->setParam('limit', $originalLimit + count($excludes));
 
-        $parentNodes = self::getParentNodes($content->getParamValue('parent_node')); 
-        
+        $parentNodes = self::getParentNodes($content->getParamValue('parent_node'));
+
         // Random mode
         if(in_array('random', $content->getParamValue('random'))) {
 
@@ -121,9 +121,15 @@ class LatestArticleListener
 
         $contents = array_slice($contents, 0, $originalLimit);
 
+        // Get the right parent
+        $parentNode = array_shift($parentNodes);
+        if($parentNode === $page) {
+            $parentNode = $parentNode->getParent();
+        }
+
         // Assign renderer vars
         self::$renderer->assign('contents', $contents);
-        self::$renderer->assign('parentNode', array_shift($parentNodes));
+        self::$renderer->assign('parentNode', $parentNode);
     }
 
     private static function getParentNodes($parentNodeParam)
