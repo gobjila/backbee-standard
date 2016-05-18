@@ -95,7 +95,9 @@ class HomeArticleHighlightListener
                     ->getQuery()
                     ->getOneOrNullResult();
 
-            $parentNode[] = $page;
+            if($page instanceof Page) {
+                $parentNode[] = $page;
+            }
         }
 
         return $parentNode;
