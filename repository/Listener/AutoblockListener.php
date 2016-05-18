@@ -22,6 +22,7 @@
 namespace BackBee\Event\Listener;
 
 use BackBee\Renderer\Event\RendererEvent;
+use BackBee\Controller\Exception\FrontControllerException;
 
 use Doctrine\ORM\Tools\Pagination\Paginator;
 
@@ -29,6 +30,7 @@ use Doctrine\ORM\Tools\Pagination\Paginator;
  * Autoblock Listener
  *
  * @author      f.kroockmann <florian.kroockmann@lp-digital.fr>
+ * @author      a.gobjila <alexandre.gobjila@lp-digital.fr>
  */
 class AutoblockListener
 {
@@ -54,42 +56,85 @@ class AutoblockListener
         self::$em = self::$application->getEntityManager();
 
         $content = $event->getTarget();
-        $parentNode = self::getParentNode($content->getParamValue('parent_node'));
+        $parentNodes = self::getParentNodes($content->getParamValue('parent_node')); 
 
-        $selector = ['parentnode' => [($parentNode !== null) ? $parentNode->getUid() : null]];
+        // Construct selector
+        $nodesUids = array();
+        foreach($parentNodes as $node) {
+            $nodesUids[] = $node->getUid();
+        }
+        $selector = ['parentnode' => ($nodesUids !== null) ? $nodesUids : [null]];
 
-        $contents = self::$em
-            ->getRepository('BackBee\ClassContent\AbstractClassContent')
-            ->getSelection(
-                $selector,
-                in_array('multipage', $content->getParamValue('multipage')),
-                in_array('recursive', $content->getParamValue('recursive')),
-                (int) $content->getParamValue('start'),
-                (int) $content->getParamValue('limit'),
-                self::$application->getBBUserToken() === null,
-                false,
-                (array) $content->getParamValue('content_to_show'),
-                (int) $content->getParamValue('delta')
-            )
-        ;
+        // Limits
+        $start = (int) $content->getParamValue('start');
+        $limitPerPage = (int) $content->getParamValue('limit');
+
+        // Manage pagination
+        if(in_array('multipage', $content->getParamValue('multipage'))) {
+            $currentPage = (int) self::$application->getRequest()->query->get('page', 1);
+            $currentPage = ($currentPage < 1)?1:$currentPage;
+
+            $start = ($currentPage -1 ) * $limitPerPage;
+
+            $pager = array(
+                'current' => $currentPage,
+                'limit' => $limitPerPage,
+                'total' => null
+            );
+        } else {
+            $pager = null;
+        }
+
+        // Get contents
+        $contents = self::$em->getRepository('BackBee\ClassContent\AbstractClassContent')
+                             ->getSelection(
+                                 $selector,
+                                 in_array('multipage', $content->getParamValue('multipage')),
+                                 in_array('recursive', $content->getParamValue('recursive')),
+                                 $start,
+                                 $limitPerPage,
+                                 true,
+                                 false,
+                                 (array) $content->getParamValue('content_to_show'),
+                                 (int) $content->getParamValue('delta')
+                             );
 
         $count = $contents instanceof Paginator ? $contents->count() : count($contents);
+        $nbContents = $contents instanceof Paginator ? $contents->getIterator()->count() : $count;
 
+        // Complete pagination vars
+        if(!is_null($pager)) {
+            $pager['total'] = (int) ceil($count / $limitPerPage);
+            $pager['prev'] = ($currentPage <= 1)?null:$currentPage - 1;
+            $pager['next'] = ($currentPage < $pager['total'])?$currentPage + 1:null;
+
+            if($nbContents == 0 && $currentPage !=1) {
+                throw new FrontControllerException("Page Not Found", FrontControllerException::NOT_FOUND);
+            }
+        }
+
+        // Assign renderer vars
         self::$renderer->assign('contents', $contents);
-        self::$renderer->assign('nbContents', $count);
-        self::$renderer->assign('parentNode', $parentNode);
+        self::$renderer->assign('nbContents', $nbContents);
+        self::$renderer->assign('parentNode', array_shift($parentNodes));
+        self::$renderer->assign('pager', $pager);
     }
 
-    private static function getParentNode($parentNodeParam)
+    public static function getParentNodes($parentNodeParam)
     {
         $parentNode = null;
 
         if (!empty($parentNodeParam)) {
-            if (isset($parentNodeParam['pageUid'])) {
-                $parentNode = self::$em->getRepository('BackBee\NestedNode\Page')->find($parentNodeParam['pageUid']);
+            if (is_array($parentNodeParam) === true) {
+                foreach ($parentNodeParam as $key => $parentNodeData) {
+                    if (isset($parentNodeData['pageUid']) && !empty($parentNodeData['pageUid'])) {
+                        $pageNode = self::$em->getRepository('BackBee\NestedNode\Page')->find($parentNodeData['pageUid']);
+                        $parentNode[] = $pageNode;
+                    }
+                }
             }
         } else {
-            $parentNode = self::$renderer->getCurrentPage();
+            $parentNode[] = self::$renderer->getCurrentPage();
         }
 
         return $parentNode;
