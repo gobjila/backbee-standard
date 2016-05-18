@@ -1,0 +1,19 @@
+template: ArticlePrefilled.twig
+label: Article with pre filled column
+columns:
+  MainColumn:
+    mainZone: true
+    accept: "Article\\Article"
+    maxentry: ~
+    defaultClassContent: "Article\\Article"
+    inherited: false
+  RightColumnFirst:
+    mainZone: false
+    accept: ~
+    maxentry: ~
+    defaultClassContent: "Article\\Quote"
+  RightColumnsSecond:
+    mainZone: false
+    accept: ~
+    maxentry: ~
+    defaultClassContent: "Article\\LatestArticle"
