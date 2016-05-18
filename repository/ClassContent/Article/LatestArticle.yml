@@ -19,3 +19,9 @@ LatestArticle:
                 value: More news
             parameters:
                 rte: lite
+    parameters:
+        random:
+            type: checkbox
+            options:
+                'random': 'Random articles'
+            value: []
