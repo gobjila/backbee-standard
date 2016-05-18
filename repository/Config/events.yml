@@ -1,5 +1,6 @@
 block.autoblock.render:
   listeners:
+    - [BackBee\Event\Listener\LatestArticleListener, onRender]
     - [BackBee\Event\Listener\AutoblockListener, onRender]
 
 social.facebook.render:
@@ -19,5 +20,5 @@ article.quote.render:
     - [BackBee\Event\Listener\QuoteListener, onRender]
 
 home.slider.render:
-    listeners:
-        - [BackBee\Event\Listener\SliderListener, onRender]
+  listeners:
+    - [BackBee\Event\Listener\SliderListener, onRender]
