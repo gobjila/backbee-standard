@@ -1,0 +1,15 @@
+HomeArticleHighlight:
+    properties:
+        name: Home Article Highlight
+        description: "Home article highlight"
+        category: [Home]
+    parameters:
+        rendermode:
+            label: 'Block type'
+            type: 'select'
+            value: ['small']
+        parent_node:
+            label: 'Select a page'
+            type: nodeSelector
+            value: []
+            max_entry: 1

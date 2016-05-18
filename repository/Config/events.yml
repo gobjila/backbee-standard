@@ -21,3 +21,7 @@ article.quote.render:
 home.slider.render:
     listeners:
         - [BackBee\Event\Listener\SliderListener, onRender]
+
+home.homearticlehighlight.render:
+    listeners:
+        - [BackBee\Event\Listener\HomeArticleHighlightListener, onRender]
