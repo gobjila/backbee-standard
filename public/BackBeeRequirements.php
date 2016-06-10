@@ -141,6 +141,15 @@ class BackBeeRequirements
         );
 
         $requirements[] = new Requirement(
+            false,
+            empty(ini_get('date.timezone')),
+            'Default timezone set',
+            'We strongly recommend you to set a default timezone<br/>(see <a href="http://php.net/manual/en/datetime.configuration.php#ini.date.timezone" target="_blank">http://php.net/manual/en/datetime.configuration.php#ini.date.timezone</a>).',
+            false,
+            Requirement::LEVEL_WARNING
+        );
+
+        $requirements[] = new Requirement(
             true,
             is_dir(realpath(__DIR__ . '/../vendor/composer')),
             'Dependencies installation',
