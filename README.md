@@ -1,6 +1,8 @@
 [![Stories in Ready](https://badge.waffle.io/backbee/backbee-standard.png?label=ready&title=Ready)](https://waffle.io/backbee/backbee-standard)
 # BackBee CMS Standard Edition
 
+[![Join the chat at https://gitter.im/backbee/backbee-standard](https://badges.gitter.im/backbee/backbee-standard.svg)](https://gitter.im/backbee/backbee-standard?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 ## Overview ##
 
 BackBee is an open-source content management system. Because it incorporates HTML5 programming to an unprecedented extent, its usability and design flexibility surpasses all other content management systems that we know of.
